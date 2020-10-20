@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include "test_memotable.hpp"
-#include "test_reverse.hpp"
 #include "test_clause.hpp"
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
