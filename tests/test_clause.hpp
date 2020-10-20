@@ -5,49 +5,29 @@
 #ifndef PIKA_TEST_CLAUSE_HPP
 #define PIKA_TEST_CLAUSE_HPP
 #include <pika/clause.hpp>
+#include <cxxabi.h>
 #include <sstream>
 using namespace pika::clause;
 
 struct Additive;
 struct Multiplicative;
 
-struct Digit : CharRange<'0', '9'> {
-    std::optional<std::string_view> label() override {
-        return "Digit";
-    }
-};
-
-struct Number : Plus<Digit> {
-    std::optional<std::string_view> label() override {
-        return "Number";
-    }
-};
-
-struct Primary : Ord<Seq<Char<'('>, Additive, Char<')'>>, Number> {
-    std::optional<std::string_view> label() override {
-        return "Primary";
-    }
-};
-
-
-struct Multiplicative : Ord<Seq<Primary, Char<'+'>, Multiplicative>, Primary> {
-    std::optional<std::string_view> label() override {
-        return "Multiplicative";
-    }
-};
-
-struct Additive : Ord<Seq<Multiplicative, Char<'+'>, Additive>, Multiplicative> {
-    std::optional<std::string_view> label() override {
-        return "Additive";
-    }
-};
-
-struct Toplevel : Seq<First, Additive, NotFollowedBy<Any>> {
-    std::optional<std::string_view> label() override {
-        return "Toplevel";
-    }
-};
-
+PIKA_DECLARE(Digit, PIKA_CHAR_RANGE('0', '9'), false);
+PIKA_DECLARE(Number, PIKA_PLUS(Digit), true);
+PIKA_DECLARE(Primary,
+             PIKA_ORD(
+                     PIKA_SEQ(PIKA_CHAR('('), Additive, PIKA_CHAR(')')),
+                     Number), true);
+PIKA_DECLARE(Multiplicative,
+             PIKA_ORD(
+                     PIKA_SEQ(Primary, PIKA_CHAR('+'), Multiplicative),
+                     Primary), true);
+PIKA_DECLARE(Additive,
+             PIKA_ORD(
+                     PIKA_SEQ(Multiplicative, PIKA_CHAR('+'), Additive),
+                     Multiplicative), true);
+PIKA_DECLARE(Toplevel,
+             PIKA_SEQ(PIKA_FIRST, Additive, PIKA_NOT_FOLLOWED_BY(PIKA_ANY)), true);
 
 TEST(Clause, Display) {
     auto target = "( ( Multiplicative ~ '+' ~ Additive ) / Multiplicative )\n"
@@ -67,5 +47,14 @@ TEST(Clause, Dump) {
     std::ostringstream output;
     Toplevel().dump(output);
     EXPECT_EQ( output.str(), target);
+}
+
+TEST(Clause, FindTerminals) {
+    pika::clause::ClauseTable table;
+    Toplevel().construct_table(table);
+    for (auto & i : table) {
+        std::cout << abi::__cxa_demangle(i.first.name(), nullptr, nullptr, nullptr) << std::endl;
+        EXPECT_EQ(i.first, typeid(*i.second));
+    }
 }
 #endif //PIKA_TEST_CLAUSE_HPP
