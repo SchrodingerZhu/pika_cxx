@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(pika CXX)
+option(PIKA_FULL_OPTIMIZATION OFF "Enable optimizations for benchmarking.")
 set(CMAKE_CXX_STANDARD 17)
+
+if (PIKA_FULL_OPTIMIZATION)
+    set(CMAKE_CXX_FLAGS "-O3 -march=native -flto")
+endif()
 
 add_subdirectory(abseil-cpp)
 add_subdirectory(snmalloc)

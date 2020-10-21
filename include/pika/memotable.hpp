@@ -10,6 +10,9 @@
 
 #define PIKA_INLINE_MATCHED 7
 namespace pika {
+    namespace parse_tree {
+        class TreeNode;
+    }
     namespace memotable {
         struct MemoKey {
             const std::type_index clause_type;
@@ -38,6 +41,7 @@ namespace pika {
             const size_t sub_fst_idx;
             const std::vector<std::shared_ptr<Match>> sub_matches;
         public:
+            friend pika::parse_tree::TreeNode;
 
             Match(MemoKey key, size_t length, size_t sub_fst_idx, std::vector<std::shared_ptr<Match>> sub_matches);
 
@@ -45,12 +49,15 @@ namespace pika {
             get_sub_matches();
 
             bool is_better_than(const Match &that);
+
             [[nodiscard]] size_t get_length() const;
         };
 
         class MemoTable : public absl::flat_hash_map<MemoKey, std::shared_ptr<Match>> {
             std::string_view target;
         public:
+            friend pika::parse_tree::TreeNode;
+
             explicit MemoTable(std::string_view target);
 
             [[nodiscard]] char get_char(size_t index) const;
