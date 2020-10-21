@@ -68,7 +68,7 @@ TEST(Clause, PackratBasic) {
 TEST(Clause, PackratMatch) {
     {
         pika::memotable::MemoTable table("1+1");
-        //EXPECT_TRUE(Toplevel().packrat_match(table, 0));
+        EXPECT_TRUE(Toplevel().packrat_match(table, 0));
     }
     {
         pika::memotable::MemoTable table("1*(5+5)");
@@ -79,6 +79,16 @@ TEST(Clause, PackratMatch) {
         pika::memotable::MemoTable table("(1+2)*(123*4444*(1+555*2+3))*(3)+23*(5+5)*(123*(5+1234))");
         auto result = Toplevel().packrat_match(table, 0);
         EXPECT_TRUE(result);
+    }
+    {
+        pika::memotable::MemoTable table("(1+2)*(123*4444-*(1+555*2+3))*(3)+23*(5+5)*(123*(5+1234))");
+        auto result = Toplevel().packrat_match(table, 0);
+        EXPECT_FALSE(result);
+    }
+    {
+        pika::memotable::MemoTable table("1+1(");
+        auto result = Toplevel().packrat_match(table, 0);
+        EXPECT_FALSE(result);
     }
 }
 #endif //PIKA_TEST_CLAUSE_HPP
