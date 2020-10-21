@@ -11,4 +11,8 @@ include_directories(abseil-cpp)
 include_directories(googletest/googlemock/include)
 include_directories(googletest/googletest/include)
 
+file(GLOB PIKA_SRC src/*.cpp)
+
+add_library(pika SHARED ${PIKA_SRC})
+
 include(tests/tests.cmake)

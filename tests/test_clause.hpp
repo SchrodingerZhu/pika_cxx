@@ -5,6 +5,7 @@
 #ifndef PIKA_TEST_CLAUSE_HPP
 #define PIKA_TEST_CLAUSE_HPP
 #include <pika/clause.hpp>
+#include <pika/clause.ipp>
 #include <cxxabi.h>
 #include <sstream>
 using namespace pika::clause;
@@ -43,18 +44,35 @@ TEST(Clause, Dump) {
                   "Primary <- ( ( '(' ~ Additive ~ ')' ) / Number )\n"
                   "Multiplicative <- ( ( Primary ~ '+' ~ Multiplicative ) / Primary )\n"
                   "Additive <- ( ( Multiplicative ~ '+' ~ Additive ) / Multiplicative )\n"
-                  "Toplevel <- ( ^ ~ Additive ~ !( ANYTHING ) )\n";
+                  "Toplevel <- ( ^ ~ Additive ~ !( ANYCHAR ) )\n";
     std::ostringstream output;
     Toplevel().dump(output);
     EXPECT_EQ( output.str(), target);
 }
 
-TEST(Clause, FindTerminals) {
+TEST(Clause, ConstructTable) {
     pika::clause::ClauseTable table;
     Toplevel().construct_table(table);
     for (auto & i : table) {
-        std::cout << abi::__cxa_demangle(i.first.name(), nullptr, nullptr, nullptr) << std::endl;
         EXPECT_EQ(i.first, typeid(*i.second));
+    }
+}
+
+TEST(Clause, PackratBasic) {
+    pika::memotable::PackratMemoTable table1 ("1");
+    EXPECT_TRUE(Char<'1'>().packrat_match(table1, 0));
+    pika::memotable::PackratMemoTable table2 ("123");
+    EXPECT_TRUE(Number().packrat_match(table2, 0));
+}
+
+TEST(Clause, PackratMatch) {
+    {
+        pika::memotable::PackratMemoTable table("1+1");
+        //EXPECT_TRUE(Toplevel().packrat_match(table, 0));
+    }
+    {
+        pika::memotable::PackratMemoTable table("1*(5+5)");
+        EXPECT_TRUE(Toplevel().packrat_match(table, 0));
     }
 }
 #endif //PIKA_TEST_CLAUSE_HPP
