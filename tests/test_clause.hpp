@@ -21,7 +21,7 @@ PIKA_DECLARE(Primary,
                      Number), true);
 PIKA_DECLARE(Multiplicative,
              PIKA_ORD(
-                     PIKA_SEQ(Primary, PIKA_CHAR('+'), Multiplicative),
+                     PIKA_SEQ(Primary, PIKA_CHAR('*'), Multiplicative),
                      Primary), true);
 PIKA_DECLARE(Additive,
              PIKA_ORD(
@@ -32,7 +32,7 @@ PIKA_DECLARE(Toplevel,
 
 TEST(Clause, Display) {
     auto target = "( ( Multiplicative ~ '+' ~ Additive ) / Multiplicative )\n"
-                  "( ^ ~ Additive ~ !( ANYTHING ) )\n";
+                  "( ^ ~ Additive ~ !( ANYCHAR ) )\n";
     std::ostringstream output;
     output << Additive().display() << std::endl;
     output << Toplevel().display() << std::endl;
@@ -42,7 +42,7 @@ TEST(Clause, Dump) {
     auto target = "Digit <- ['0'-'9']\n"
                   "Number <- ( Digit )+\n"
                   "Primary <- ( ( '(' ~ Additive ~ ')' ) / Number )\n"
-                  "Multiplicative <- ( ( Primary ~ '+' ~ Multiplicative ) / Primary )\n"
+                  "Multiplicative <- ( ( Primary ~ '*' ~ Multiplicative ) / Primary )\n"
                   "Additive <- ( ( Multiplicative ~ '+' ~ Additive ) / Multiplicative )\n"
                   "Toplevel <- ( ^ ~ Additive ~ !( ANYCHAR ) )\n";
     std::ostringstream output;
@@ -59,20 +59,26 @@ TEST(Clause, ConstructTable) {
 }
 
 TEST(Clause, PackratBasic) {
-    pika::memotable::PackratMemoTable table1 ("1");
+    pika::memotable::MemoTable table1 ("1");
     EXPECT_TRUE(Char<'1'>().packrat_match(table1, 0));
-    pika::memotable::PackratMemoTable table2 ("123");
+    pika::memotable::MemoTable table2 ("123");
     EXPECT_TRUE(Number().packrat_match(table2, 0));
 }
 
 TEST(Clause, PackratMatch) {
     {
-        pika::memotable::PackratMemoTable table("1+1");
+        pika::memotable::MemoTable table("1+1");
         //EXPECT_TRUE(Toplevel().packrat_match(table, 0));
     }
     {
-        pika::memotable::PackratMemoTable table("1*(5+5)");
-        EXPECT_TRUE(Toplevel().packrat_match(table, 0));
+        pika::memotable::MemoTable table("1*(5+5)");
+        auto result = Toplevel().packrat_match(table, 0);
+        EXPECT_TRUE(result);
+    }
+    {
+        pika::memotable::MemoTable table("(1+2)*(123*4444*(1+555*2+3))*(3)+23*(5+5)*(123*(5+1234))");
+        auto result = Toplevel().packrat_match(table, 0);
+        EXPECT_TRUE(result);
     }
 }
 #endif //PIKA_TEST_CLAUSE_HPP

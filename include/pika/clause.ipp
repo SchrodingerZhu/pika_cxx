@@ -8,7 +8,7 @@
 
 template<char C>
 std::shared_ptr<pika::memotable::Match>
-Char<C>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+Char<C>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
                            if (!table.at_end(index) && table.get_char(index) == C) {
                                return table[key] =
@@ -20,7 +20,7 @@ Char<C>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
 
 template<char Start, char End>
 std::shared_ptr<pika::memotable::Match>
-CharRange<Start, End>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+CharRange<Start, End>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
                            if (!table.at_end(index) && table.get_char(index) >= Start && table.get_char(index) <= End) {
                                return table[key] =
@@ -32,7 +32,7 @@ CharRange<Start, End>::packrat_match(memotable::PackratMemoTable &table, size_t 
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-NotFollowedBy<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+NotFollowedBy<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
                            if (!S().packrat_match(table, index)) {
                                return table[key] =
@@ -44,7 +44,7 @@ NotFollowedBy<S>::packrat_match(memotable::PackratMemoTable &table, size_t index
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-FollowedBy<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+FollowedBy<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
                            if (auto res = S().packrat_match(table, index)) {
                                return table[key] =
@@ -57,7 +57,7 @@ FollowedBy<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) c
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-Optional<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+Optional<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
                            if (auto res = S().packrat_match(table, index)) {
                                return table[key] =
@@ -74,7 +74,7 @@ Optional<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) con
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-Asterisks<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+Asterisks<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
                            size_t matched_length = 0;
                            S inner{};
@@ -93,7 +93,7 @@ Asterisks<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) co
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-Plus<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+Plus<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
                            size_t matched_length = 0;
                            S inner{};
@@ -113,7 +113,7 @@ Plus<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-Ord<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+Ord<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH(
             if (auto res = S().packrat_match(table, index)) {
                 return table[key] =
@@ -127,7 +127,7 @@ Ord<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
 
 template<typename H, typename ...T>
 std::shared_ptr<pika::memotable::Match>
-Ord<H, T...>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+Ord<H, T...>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH(
             if (auto res = H().packrat_match(table, index)) {
                 return table[key] =
@@ -142,7 +142,7 @@ Ord<H, T...>::packrat_match(memotable::PackratMemoTable &table, size_t index) co
 
 template<typename H, typename... T>
 std::shared_ptr<pika::memotable::Match>
-Seq<H, T...>::packrat_reduce(memotable::PackratMemoTable &table, size_t index, size_t length,
+Seq<H, T...>::packrat_reduce(memotable::MemoTable &table, size_t index, size_t length,
                              std::vector<std::shared_ptr<pika::memotable::Match>> collection) const {
     if (auto res = H().packrat_match(table, index + length)) {
         collection.push_back(res);
@@ -154,7 +154,7 @@ Seq<H, T...>::packrat_reduce(memotable::PackratMemoTable &table, size_t index, s
 
 template<typename H>
 std::shared_ptr<pika::memotable::Match>
-Seq<H>::packrat_reduce(memotable::PackratMemoTable &table, size_t index, size_t length,
+Seq<H>::packrat_reduce(memotable::MemoTable &table, size_t index, size_t length,
                        std::vector<std::shared_ptr<pika::memotable::Match>> collection) const {
     if (auto res = H().packrat_match(table, index + length)) {
         auto key = pika::memotable::MemoKey(this->get_instance(), index);
@@ -168,20 +168,20 @@ Seq<H>::packrat_reduce(memotable::PackratMemoTable &table, size_t index, size_t 
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-Seq<S>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
-    PIKA_CHECKED_MATCH(
-            if (auto res = packrat_reduce(table, index, 0, {})) {
-                return res;
-            }
+Seq<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
+    PIKA_CHECKED_MATCH({
+                           return packrat_reduce(table, index, 0, {});
+                       }
+
     );
 }
 
 template<typename H, typename ...T>
 std::shared_ptr<pika::memotable::Match>
-Seq<H, T...>::packrat_match(memotable::PackratMemoTable &table, size_t index) const {
+Seq<H, T...>::packrat_match(memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH(
-            if (auto res = packrat_reduce(table, index, 0, {})) {
-                return res;
+            {
+                return packrat_reduce(table, index, 0, {});
             }
     );
 }

@@ -30,16 +30,12 @@ bool pika::memotable::Match::is_better_than(const pika::memotable::Match &that) 
 
 size_t pika::memotable::Match::get_length() const {return length; }
 
-pika::memotable::PikaMemoTable::PikaMemoTable() : absl::flat_hash_map<MemoKey, Match>() {
+pika::memotable::MemoTable::MemoTable(std::string_view target) : target(target), absl::flat_hash_map<MemoKey, std::shared_ptr<Match>>() {}
 
-}
-
-pika::memotable::PackratMemoTable::PackratMemoTable(std::string_view target) : target(target), absl::flat_hash_map<MemoKey, std::shared_ptr<Match>>() {}
-
-char pika::memotable::PackratMemoTable::get_char(size_t index) const {
+char pika::memotable::MemoTable::get_char(size_t index) const {
     return target[index];
 }
 
-bool pika::memotable::PackratMemoTable::at_end(size_t index) const {
+bool pika::memotable::MemoTable::at_end(size_t index) const {
     return target.size() == index;
 }

@@ -13,7 +13,7 @@
 namespace pika {
     namespace memotable {
         struct MemoKey;
-        struct PackratMemoTable;
+        struct MemoTable;
         struct Match;
     }
     namespace clause {
@@ -35,7 +35,7 @@ namespace pika {
             [[nodiscard]] virtual bool active() const;;
 
             [[nodiscard]] virtual std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const;
         };
 
 #define DEFAULT_INSTANCE \
@@ -105,7 +105,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
         template<char Start, char End>
@@ -120,7 +120,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
         struct First : public _internal::Terminal {
@@ -134,7 +134,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
         struct Nothing : public _internal::Terminal {
@@ -148,7 +148,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
         struct Any : public _internal::Terminal {
@@ -162,7 +162,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
 #define UNARY_DUMP(H) \
@@ -247,10 +247,10 @@ namespace pika {
                     })
 
             virtual std::shared_ptr<pika::memotable::Match>
-            packrat_reduce(pika::memotable::PackratMemoTable &table, size_t index, size_t length,
+            packrat_reduce(pika::memotable::MemoTable &table, size_t index, size_t length,
                            std::vector<std::shared_ptr<pika::memotable::Match>>) const;
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
 
@@ -305,10 +305,10 @@ namespace pika {
                     })
 
             virtual std::shared_ptr<pika::memotable::Match>
-            packrat_reduce(pika::memotable::PackratMemoTable &table, size_t index, size_t length,
+            packrat_reduce(pika::memotable::MemoTable &table, size_t index, size_t length,
                            std::vector<std::shared_ptr<pika::memotable::Match>>) const;
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
 
@@ -383,7 +383,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
         template<typename H>
@@ -436,7 +436,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
 
@@ -466,7 +466,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
 
@@ -496,7 +496,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
         template<typename S>
@@ -525,7 +525,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
 
@@ -557,7 +557,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
         template<typename S>
@@ -586,7 +586,7 @@ namespace pika {
                     })
 
             std::shared_ptr<pika::memotable::Match>
-            packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const override;
+            packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
         };
 
     }
@@ -616,9 +616,14 @@ struct TYPE_NAME : RULE {                   \
 #define PIKA_ASTERISKS(C) pika::clause::Asterisks<C>
 #define PIKA_FOLLOWED_BY(C) pika::clause::FollowedBy<C>
 #define PIKA_NOT_FOLLOWED_BY(C) pika::clause::NotFollowedBy<C>
+#ifdef PACKRAT_DEBUG
 #include <iostream>
+#define PACKRAT_DEBUG std::cout << "parsing: " << (this->label()? this->label().value() : this->display()) << ", from: " << index << std::endl;
+#else
+#define PACKRAT_DEBUG
+#endif
 #define PIKA_CHECKED_MATCH(BLOCK) \
-    std::cout << "parsing: " << display() << std::endl;                              \
+    PACKRAT_DEBUG                              \
     auto key = pika::memotable::MemoKey(this->get_instance(), index); \
     if (table.template contains(key)) { \
         return table[key]; \

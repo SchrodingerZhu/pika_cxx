@@ -48,14 +48,10 @@ namespace pika {
             [[nodiscard]] size_t get_length() const;
         };
 
-        class PikaMemoTable : public absl::flat_hash_map<MemoKey, Match> {
-            PikaMemoTable();
-        };
-
-        class PackratMemoTable : public absl::flat_hash_map<MemoKey, std::shared_ptr<Match>> {
+        class MemoTable : public absl::flat_hash_map<MemoKey, std::shared_ptr<Match>> {
             std::string_view target;
         public:
-            explicit PackratMemoTable(std::string_view target);
+            explicit MemoTable(std::string_view target);
 
             [[nodiscard]] char get_char(size_t index) const;
 

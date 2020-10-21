@@ -28,12 +28,12 @@ bool pika::clause::Clause::active() const {
 }
 
 std::shared_ptr<pika::memotable::Match>
-pika::clause::Clause::packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const {
+pika::clause::Clause::packrat_match(pika::memotable::MemoTable &table, size_t index) const {
     return nullptr;
 }
 
 std::shared_ptr<pika::memotable::Match>
-pika::clause::First::packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const {
+pika::clause::First::packrat_match(pika::memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH(
             if (index == 0) {
                 return table[key] =
@@ -44,7 +44,7 @@ pika::clause::First::packrat_match(pika::memotable::PackratMemoTable &table, siz
 }
 
 std::shared_ptr<pika::memotable::Match>
-pika::clause::Nothing::packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const {
+pika::clause::Nothing::packrat_match(pika::memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
 
                            return table[key] =
@@ -55,7 +55,7 @@ pika::clause::Nothing::packrat_match(pika::memotable::PackratMemoTable &table, s
 }
 
 std::shared_ptr<pika::memotable::Match>
-pika::clause::Any::packrat_match(pika::memotable::PackratMemoTable &table, size_t index) const {
+pika::clause::Any::packrat_match(pika::memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH(if (!table.at_end(index)) {
         return table[key] =
                        std::make_shared<pika::memotable::Match>(key, 1, 0,
