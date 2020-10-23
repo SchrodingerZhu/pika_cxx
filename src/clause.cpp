@@ -43,6 +43,10 @@ pika::clause::First::packrat_match(pika::memotable::MemoTable &table, size_t ind
     );
 }
 
+pika::type_utils::BaseType pika::clause::First::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::First;
+}
+
 std::shared_ptr<pika::memotable::Match>
 pika::clause::Nothing::packrat_match(pika::memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
@@ -54,6 +58,10 @@ pika::clause::Nothing::packrat_match(pika::memotable::MemoTable &table, size_t i
     );
 }
 
+pika::type_utils::BaseType pika::clause::Nothing::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Nothing;
+}
+
 std::shared_ptr<pika::memotable::Match>
 pika::clause::Any::packrat_match(pika::memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH(if (!table.at_end(index)) {
@@ -62,4 +70,48 @@ pika::clause::Any::packrat_match(pika::memotable::MemoTable &table, size_t index
                                                                 std::vector<std::shared_ptr<pika::memotable::Match>>{});
     }
     );
+}
+
+pika::type_utils::BaseType pika::clause::Any::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Any;
+}
+
+pika::type_utils::BaseType pika::clause::Clause::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Error;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::Char::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Char;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::CharRange::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::CharRange;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::NotFollowedBy::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::NotFollowedBy;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::FollowedBy::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::FollowedBy;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::Optional::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Optional;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::Asterisks::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Asterisks;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::Plus::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Plus;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::Ord::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Ord;
+}
+
+pika::type_utils::BaseType pika::clause::_internal::Seq::get_base_type() const noexcept {
+    return pika::type_utils::BaseType::Seq;
 }

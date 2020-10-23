@@ -16,6 +16,9 @@ namespace pika {
         struct MemoTable;
         struct Match;
     }
+    namespace type_utils {
+        enum class BaseType;
+    }
     namespace clause {
         using ClauseTable = absl::flat_hash_map<std::type_index, const struct Clause *>;
 
@@ -36,6 +39,8 @@ namespace pika {
 
             [[nodiscard]] virtual std::shared_ptr<pika::memotable::Match>
             packrat_match(pika::memotable::MemoTable &table, size_t index) const;
+
+            [[nodiscard]] virtual pika::type_utils::BaseType get_base_type() const noexcept;
         };
 
 #define DEFAULT_INSTANCE \
@@ -50,22 +55,31 @@ namespace pika {
             struct NonTerminal : public Clause {
             };
             struct Char : public Terminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct CharRange : public Terminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct Seq : public NonTerminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct Ord : public NonTerminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct Plus : public NonTerminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct Asterisks : public NonTerminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct Optional : public NonTerminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct FollowedBy : public NonTerminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
             struct NotFollowedBy : public NonTerminal {
+                [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
             };
         }
 
@@ -135,6 +149,8 @@ namespace pika {
 
             std::shared_ptr<pika::memotable::Match>
             packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
+
+            [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
         };
 
         struct Nothing : public _internal::Terminal {
@@ -149,6 +165,7 @@ namespace pika {
 
             std::shared_ptr<pika::memotable::Match>
             packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
+            [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
         };
 
         struct Any : public _internal::Terminal {
@@ -163,6 +180,7 @@ namespace pika {
 
             std::shared_ptr<pika::memotable::Match>
             packrat_match(pika::memotable::MemoTable &table, size_t index) const override;
+            [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept override;
         };
 
 #define UNARY_DUMP(H) \

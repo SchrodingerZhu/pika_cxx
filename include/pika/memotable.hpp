@@ -17,10 +17,9 @@ namespace pika {
         struct MemoKey {
             const std::type_index clause_type;
             const size_t start_position;
-            const type_utils::BaseType base_type;
             const clause::Clause *const tag;
 
-            MemoKey(const clause::Clause *const tag, size_t start_position) noexcept;
+            MemoKey(const clause::Clause *tag, size_t start_position) noexcept;
 
             template<typename H>
             friend H AbslHashValue(H h, const MemoKey &k) {
@@ -29,10 +28,7 @@ namespace pika {
 
             bool operator==(const MemoKey &that) const noexcept;
 
-            template<class C>
-            [[nodiscard]] bool is_based_on() const noexcept {
-                return type_utils::get_base_type<C>() == base_type;
-            }
+            [[nodiscard]] pika::type_utils::BaseType get_base_type() const noexcept;
         };
 
         class Match {
