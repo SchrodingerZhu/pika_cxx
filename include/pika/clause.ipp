@@ -99,6 +99,7 @@ Asterisks<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
                            while (auto res = inner.packrat_match(table, index + matched_length)) {
                                matched_length += res->get_length();
                                sub_matches.push_back(res);
+                               if (res->get_length() == 0) break;
                            }
                            return table[key] =
                                           std::make_shared<pika::memotable::Match>(key, matched_length, 0,
@@ -118,6 +119,7 @@ Plus<S>::packrat_match(memotable::MemoTable &table, size_t index) const {
                            while (auto res = inner.packrat_match(table, index + matched_length)) {
                                matched_length += res->get_length();
                                sub_matches.push_back(res);
+                               if (res->get_length() == 0) break;
                            }
                            if (!sub_matches.empty())
                                return table[key] =
