@@ -36,7 +36,7 @@ PIKA_DECLARE(Additive,
 
 PIKA_DECLARE(Toplevel,
              PIKA_SEQ(PIKA_FIRST, Additive, PIKA_NOT_FOLLOWED_BY(PIKA_ANY)), true);
-
+PIKA_DECLARE(Add, PIKA_ORD(PIKA_SEQ(Add, PIKA_CHAR('+'), Number), Number), true);
 TEST(Clause, Display) {
     auto target = "( ( Multiplicative ~ '+' ~ Additive ) / Multiplicative )\n"
                   "( ^ ~ Additive ~ !( ANYCHAR ) )\n";

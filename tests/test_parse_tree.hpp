@@ -20,6 +20,9 @@ size_t eval(const pika::parse_tree::TreeNode &node) {
         } else if (node.is_clause<Additive>()) {
             EXPECT_EQ(node.size(), 2);
             return eval(**node.begin()) + eval(**(node.begin() + 1));
+        } else if (node.is_clause<Add>()) {
+            EXPECT_EQ(node.size(), 2);
+            return eval(**node.begin()) + eval(**(node.begin() + 1));
         }
     }
     throw std::runtime_error ("unreachable");

@@ -69,12 +69,10 @@ TEST(Graph, String) {
     PARSE(MyString, "cabbaacb", "cabbaacb", extract);
 }
 
-PIKA_DECLARE(Add, PIKA_ORD(PIKA_SEQ(Add, PIKA_CHAR('+'), Number), Number), true);
-
 TEST(Graph, LeftRecusion) {
-    PARSE(Add, "1", "1", extract);
-    PARSE(Add, "1+1", "1+1", extract);
-    PARSE(Add, "1+555+1+1", "1+555+1+1", extract);
+    PARSE(Add, "1", 1, eval);
+    PARSE(Add, "1+1", 2, eval);
+    PARSE(Add, "1+555+1+1", 558, eval);
 }
 
 #endif //PIKA_TEST_GRAPH_HPP
