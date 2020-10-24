@@ -671,6 +671,7 @@ struct TYPE_NAME : RULE {                   \
 #define PIKA_SEQ(...) pika::clause::Seq<__VA_ARGS__>
 #define PIKA_ORD(...) pika::clause::Ord<__VA_ARGS__>
 #define PIKA_PLUS(C) pika::clause::Plus<C>
+#define PIKA_OPTIONAL(C) pika::clause::Optional<C>
 #define PIKA_ASTERISKS(C) pika::clause::Asterisks<C>
 #define PIKA_FOLLOWED_BY(C) pika::clause::FollowedBy<C>
 #define PIKA_NOT_FOLLOWED_BY(C) pika::clause::NotFollowedBy<C>
