@@ -32,11 +32,12 @@ namespace pika {
         };
 
         class Match {
+        public:
             const MemoKey key;
             const size_t length;
             const size_t sub_fst_idx;
             const std::vector<std::shared_ptr<Match>> sub_matches;
-        public:
+
             friend pika::parse_tree::TreeNode;
 
             Match(MemoKey key, size_t length, size_t sub_fst_idx, std::vector<std::shared_ptr<Match>> sub_matches);
@@ -52,6 +53,7 @@ namespace pika {
         class MemoTable : public absl::flat_hash_map<MemoKey, std::shared_ptr<Match>> {
             std::string_view target;
         public:
+            friend pika::graph::ClauseTable;
             friend pika::parse_tree::TreeNode;
 
             explicit MemoTable(std::string_view target);

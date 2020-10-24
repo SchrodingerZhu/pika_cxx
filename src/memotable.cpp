@@ -29,7 +29,7 @@ bool pika::memotable::Match::is_better_than(const pika::memotable::Match &that) 
     if (&that == this) {
         return false;
     }
-    return (key.get_base_type() == pika::type_utils::BaseType::First
+    return (key.get_base_type() == pika::type_utils::BaseType::Ord
             && this->sub_fst_idx < that.sub_fst_idx)
            || this->length > that.length;
 }

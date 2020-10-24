@@ -1,5 +1,6 @@
 #include <pika/clause.hpp>
 #include <pika/memotable.hpp>
+#include <pika/graph.hpp>
 
 std::optional<std::string_view> pika::clause::Clause::label() const {
     return std::nullopt;
@@ -47,6 +48,14 @@ pika::type_utils::BaseType pika::clause::First::get_base_type() const noexcept {
     return pika::type_utils::BaseType::First;
 }
 
+void pika::clause::First::pika_match(pika::graph::ClauseTable &table) const {
+
+    if (table.current_pos == 1) {
+        table.try_add(this->get_instance(), 0, 0, {});
+    }
+
+}
+
 std::shared_ptr<pika::memotable::Match>
 pika::clause::Nothing::packrat_match(pika::memotable::MemoTable &table, size_t index) const {
     PIKA_CHECKED_MATCH({
@@ -60,6 +69,10 @@ pika::clause::Nothing::packrat_match(pika::memotable::MemoTable &table, size_t i
 
 pika::type_utils::BaseType pika::clause::Nothing::get_base_type() const noexcept {
     return pika::type_utils::BaseType::Nothing;
+}
+
+void pika::clause::Nothing::pika_match(pika::graph::ClauseTable &table) const {
+    table.try_add(this->get_instance(), 0, 0, {});
 }
 
 std::shared_ptr<pika::memotable::Match>
@@ -76,9 +89,17 @@ pika::type_utils::BaseType pika::clause::Any::get_base_type() const noexcept {
     return pika::type_utils::BaseType::Any;
 }
 
+void pika::clause::Any::pika_match(pika::graph::ClauseTable &table) const {
+    if (!table.eof()) {
+        table.try_add(this->get_instance(), 1, 0, {});
+    }
+}
+
 pika::type_utils::BaseType pika::clause::Clause::get_base_type() const noexcept {
     return pika::type_utils::BaseType::Error;
 }
+
+void pika::clause::Clause::mark_seeds(pika::graph::ClauseTable &table) const {}
 
 pika::type_utils::BaseType pika::clause::_internal::Char::get_base_type() const noexcept {
     return pika::type_utils::BaseType::Char;
@@ -115,3 +136,12 @@ pika::type_utils::BaseType pika::clause::_internal::Ord::get_base_type() const n
 pika::type_utils::BaseType pika::clause::_internal::Seq::get_base_type() const noexcept {
     return pika::type_utils::BaseType::Seq;
 }
+
+void pika::clause::_internal::Terminal::dfs_traversal(absl::flat_hash_set<std::type_index> &visited,
+                                                      std::vector<const Clause *> &terminals,
+                                                      std::vector<const Clause *> &nodes) const {
+    PIKA_DFS_CHECK({
+                       terminals.push_back(this->get_instance());
+                   })
+}
+

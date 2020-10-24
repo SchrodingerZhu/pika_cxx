@@ -58,11 +58,18 @@ TEST(Clause, Dump) {
     EXPECT_EQ(output.str(), target);
 }
 
-TEST(Clause, ConstructTable) {
-    pika::clause::ClauseTable table;
-    Toplevel().construct_table(table);
-    for (auto &i : table) {
-        EXPECT_EQ(i.first, typeid(*i.second));
+TEST(Clause, DFS) {
+    std::vector<const pika::clause::Clause*> terminals;
+    std::vector<const pika::clause::Clause*> nodes;
+    absl::flat_hash_set<std::type_index> visited;
+    Toplevel().dfs_traversal(visited, terminals, nodes);
+    std::cout << "================ terminals ================" << std::endl;
+    for(auto i : terminals) {
+        std::cout << abi::__cxa_demangle(typeid(*i).name(), nullptr, nullptr, nullptr) << std::endl;
+    }
+    std::cout << "================ non-terminals ================" << std::endl;
+    for(auto i : nodes) {
+        std::cout << abi::__cxa_demangle(typeid(*i).name(), nullptr, nullptr, nullptr) << std::endl;
     }
 }
 
