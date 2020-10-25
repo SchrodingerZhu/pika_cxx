@@ -153,6 +153,7 @@ void Plus<S>::pika_match(pika::graph::ClauseTable &table) const {
         auto reduced = table.memo_table.template find({this->get_instance(), table.current_pos - 1 + length});
         if (reduced != table.memo_table.end()) {
             length += reduced->second->length;
+            sub_matches.push_back(reduced->second);
             break;
         }
         target = table.memo_table.template find({S().get_instance(), table.current_pos - 1 + length});
@@ -186,6 +187,7 @@ void Asterisks<S>::pika_match(pika::graph::ClauseTable &table) const {
         auto reduced = table.memo_table.template find({this->get_instance(), table.current_pos - 1 + length});
         if (reduced != table.memo_table.end()) {
             length += reduced->second->length;
+            sub_matches.push_back(reduced->second);
             break;
         }
         target = table.memo_table.template find({S().get_instance(), table.current_pos - 1 + length});

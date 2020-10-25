@@ -4,13 +4,31 @@
 #include <pika/parse_tree.hpp>
 
 std::vector<std::unique_ptr<const pika::parse_tree::TreeNode>> reduced(
-        const std::vector<std::shared_ptr<pika::memotable::Match>>& sub_matches,
+        std::type_index parent,
+        pika::type_utils::BaseType base,
+        const std::vector<std::shared_ptr<pika::memotable::Match>> &sub_matches,
         const pika::memotable::MemoTable &table
 ) {
     std::vector<std::unique_ptr<const pika::parse_tree::TreeNode>> result;
-    for (const auto & i: sub_matches) {
-        auto current = pika::parse_tree::TreeNode::build_from_match(*i, table);
-        std::move(current.begin(), current.end(), std::back_inserter(result));
+    if (base != pika::type_utils::BaseType::Plus && base != pika::type_utils::BaseType::Asterisks) {
+        for (const auto &i: sub_matches) {
+            auto current = pika::parse_tree::TreeNode::build_from_match(*i, table);
+            std::move(current.begin(), current.end(), std::back_inserter(result));
+        }
+    } else if (!sub_matches.empty()) {
+        std::vector<std::shared_ptr<pika::memotable::Match>> real = sub_matches;
+        auto last = sub_matches.back();
+        while (parent == typeid(real.back()->key.tag)) {
+            real.pop_back();
+            for (const auto &i : last->sub_matches) {
+                real.push_back(i);
+            }
+            last = real.back();
+        }
+        for (const auto &i: real) {
+            auto current = pika::parse_tree::TreeNode::build_from_match(*i, table);
+            std::move(current.begin(), current.end(), std::back_inserter(result));
+        }
     }
     return result;
 }
@@ -23,7 +41,7 @@ pika::parse_tree::TreeNode::build_from_match(const pika::memotable::Match &match
         result.emplace_back(std::make_unique<const pika::parse_tree::TreeNode>(match, table));
         return result;
     } else {
-        return reduced(match.sub_matches, table);
+        return reduced(typeid(*match.key.tag), match.key.get_base_type(), match.sub_matches, table);
     }
 }
 
@@ -44,7 +62,7 @@ pika::parse_tree::TreeNode::TreeNode
         (const pika::memotable::Match &match, const pika::memotable::MemoTable &table) :
         matched_clause(match.key.tag),
         matched_content(table.target.substr(match.key.start_position, match.key.start_position + match.length)),
-        branches(reduced(match.sub_matches, table)) {
+        branches(reduced(typeid(*match.key.tag), match.key.get_base_type(), match.sub_matches, table)) {
 
 }
 

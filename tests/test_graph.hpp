@@ -30,7 +30,14 @@ TEST(Graph, ConstructTable) {
             auto tree = pika::parse_tree::TreeNode(*result, table.memo_table);\
             EXPECT_EQ(EVAL(tree), RES);\
           }
-
+TEST(Graph, Number) {
+    auto target = "123";
+    auto table = pika::graph::construct_table(Number(), target);
+    auto result = table.match();
+    EXPECT_TRUE(result);
+    auto tree = pika::parse_tree::TreeNode(*result, table.memo_table);
+    EXPECT_EQ(eval(tree), 123);
+}
 TEST(Graph, Parse) {
     PARSE(Toplevel, "1+1*((((2))))", 3, eval)
     PARSE(Toplevel, "213*123+123*(1+(2*3+1))", 27183, eval)
