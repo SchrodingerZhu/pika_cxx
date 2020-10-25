@@ -281,7 +281,6 @@ namespace pika {
             void mark_seeds(graph::ClauseTable& table) const override;
             void pika_match(pika::graph::ClauseTable &table) const override;
             virtual void pika_match_unchecked(pika::graph::ClauseTable &table,
-                                              size_t first_idx,
                                               size_t length,
                                               std::vector<std::shared_ptr<memotable::Match>>) const;
         };
@@ -347,7 +346,6 @@ namespace pika {
             void mark_seeds(pika::graph::ClauseTable &table) const override;
             void pika_match(pika::graph::ClauseTable &table) const override;
             virtual void pika_match_unchecked(pika::graph::ClauseTable &table,
-                                              size_t first_idx,
                                               size_t length,
                                               std::vector<std::shared_ptr<memotable::Match>>) const;
         };
@@ -421,7 +419,7 @@ namespace pika {
                                         std::vector<const Clause *> &nodes) const;
             void mark_seeds(pika::graph::ClauseTable &table) const override;
             void pika_match(pika::graph::ClauseTable &table) const override;
-            virtual void pika_match_unchecked(pika::graph::ClauseTable &table) const;
+            virtual void pika_match_unchecked(pika::graph::ClauseTable &table, size_t order) const;
         };
 
         template<typename H>
@@ -479,7 +477,7 @@ namespace pika {
                                         std::vector<const Clause *> &nodes) const;
             void mark_seeds(pika::graph::ClauseTable &table) const override;
             void pika_match(pika::graph::ClauseTable &table) const override;
-            virtual void pika_match_unchecked(pika::graph::ClauseTable &table) const;
+            virtual void pika_match_unchecked(pika::graph::ClauseTable &table, size_t order) const;
         };
 
 

@@ -150,10 +150,15 @@ void Plus<S>::pika_match(pika::graph::ClauseTable &table) const {
         sub_matches.push_back(target->second);
         if (target->second->length == 0) break;
         length += target->second->length;
+        auto reduced = table.memo_table.template find({this->get_instance(), table.current_pos - 1 + length});
+        if (reduced != table.memo_table.end()) {
+            length += reduced->second->length;
+            break;
+        }
         target = table.memo_table.template find({S().get_instance(), table.current_pos - 1 + length});
     }
     if (!sub_matches.empty()) {
-        table.try_add(this->get_instance(), length, table.template at(typeid(S)).topological_order,
+        table.try_add(this->get_instance(), length, 0,
                       std::move(sub_matches));
     }
 }
@@ -178,9 +183,14 @@ void Asterisks<S>::pika_match(pika::graph::ClauseTable &table) const {
         sub_matches.push_back(target->second);
         if (target->second->length == 0) break;
         length += target->second->length;
+        auto reduced = table.memo_table.template find({this->get_instance(), table.current_pos - 1 + length});
+        if (reduced != table.memo_table.end()) {
+            length += reduced->second->length;
+            break;
+        }
         target = table.memo_table.template find({S().get_instance(), table.current_pos - 1 + length});
     }
-    table.try_add(this->get_instance(), length, table.template at(typeid(S)).topological_order, std::move(sub_matches));
+    table.try_add(this->get_instance(), length, 0, std::move(sub_matches));
 }
 
 template<typename S>
@@ -203,7 +213,7 @@ void Optional<S>::pika_match(pika::graph::ClauseTable &table) const {
         sub_matches.push_back(target->second);
         length += target->second->length;
     }
-    table.try_add(this->get_instance(), length, table.template at(typeid(S)).topological_order, std::move(sub_matches));
+    table.try_add(this->get_instance(), length, 0, std::move(sub_matches));
 }
 
 template<typename S>
@@ -220,7 +230,7 @@ void FollowedBy<S>::mark_seeds(pika::graph::ClauseTable &table) const {
 template<typename S>
 void FollowedBy<S>::pika_match(pika::graph::ClauseTable &table) const {
     if (table.memo_table.template contains({S().get_instance(), table.current_pos - 1})) {
-        table.try_add(this->get_instance(), 0, table.template at(typeid(S)).topological_order, {});
+        table.try_add(this->get_instance(), 0, 0, {});
     }
 }
 
@@ -239,7 +249,7 @@ void NotFollowedBy<S>::mark_seeds(pika::graph::ClauseTable &table) const {
 template<typename S>
 void NotFollowedBy<S>::pika_match(pika::graph::ClauseTable &table) const {
     if (!table.memo_table.template contains({S().get_instance(), table.current_pos - 1})) {
-        table.try_add(this->get_instance(), 0, table.template at(typeid(S)).topological_order, {});
+        table.try_add(this->get_instance(), 0, 0, {});
     }
 }
 
@@ -331,35 +341,33 @@ void Seq<H>::mark_seeds(pika::graph::ClauseTable &table) const {
 
 template<typename H, typename... T>
 void Seq<H, T...>::pika_match(pika::graph::ClauseTable &table) const {
-    pika_match_unchecked(table, table.at(typeid(H)).topological_order, 0, {});
+    pika_match_unchecked(table, 0, {});
 }
 
 template<typename H, typename... T>
 void Seq<H, T...>::pika_match_unchecked(pika::graph::ClauseTable &table,
-                                        size_t first_idx,
                                         size_t length,
                                         std::vector<std::shared_ptr<memotable::Match>> matches) const {
     auto target = table.memo_table.template find({H().get_instance(), table.current_pos - 1 + length});
     if (target != table.memo_table.end()) {
         matches.push_back(target->second);
-        Seq<T...>::pika_match_unchecked(table, first_idx, length + target->second->length, std::move(matches));
+        Seq<T...>::pika_match_unchecked(table, length + target->second->length, std::move(matches));
     }
 }
 
 template<typename H>
 void Seq<H>::pika_match(pika::graph::ClauseTable &table) const {
-    pika_match_unchecked(table, table.at(typeid(H)).topological_order, 0, {});
+    pika_match_unchecked(table, 0, {});
 }
 
 template<typename H>
 void Seq<H>::pika_match_unchecked(pika::graph::ClauseTable &table,
-                                  size_t first_idx,
                                   size_t length,
                                   std::vector<std::shared_ptr<memotable::Match>> matches) const {
     auto target = table.memo_table.template find({H().get_instance(), table.current_pos - 1 + length});
     if (target != table.memo_table.end()) {
         matches.push_back(target->second);
-        table.try_add(this->get_instance(), length + target->second->length, first_idx, std::move(matches));
+        table.try_add(this->get_instance(), length + target->second->length, 0, std::move(matches));
     }
 }
 
@@ -408,30 +416,30 @@ void Ord<H, T...>::mark_seeds(pika::graph::ClauseTable &table) const {
 
 template<typename H, typename... T>
 void Ord<H, T...>::pika_match(pika::graph::ClauseTable &table) const {
-    pika_match_unchecked(table);
+    pika_match_unchecked(table, 0);
 }
 
 template<typename H, typename... T>
-void Ord<H, T...>::pika_match_unchecked(pika::graph::ClauseTable &table) const {
+void Ord<H, T...>::pika_match_unchecked(pika::graph::ClauseTable &table, size_t order) const {
     auto target = table.memo_table.template find({H().get_instance(), table.current_pos - 1});
     if (target != table.memo_table.end()) {
-        table.try_add(this->get_instance(), target->second->length, table.template at(typeid(H)).topological_order,
+        table.try_add(this->get_instance(), target->second->length, order,
                       {target->second});
     } else {
-        Ord<T...>::pika_match_unchecked(table);
+        Ord<T...>::pika_match_unchecked(table, order + 1);
     }
 }
 
 template<typename H>
 void Ord<H>::pika_match(pika::graph::ClauseTable &table) const {
-    pika_match_unchecked(table);
+    pika_match_unchecked(table, 0);
 }
 
 template<typename H>
-void Ord<H>::pika_match_unchecked(pika::graph::ClauseTable &table) const {
+void Ord<H>::pika_match_unchecked(pika::graph::ClauseTable &table, size_t order) const {
     auto target = table.memo_table.template find({H().get_instance(), table.current_pos - 1});
     if (target != table.memo_table.end()) {
-        table.try_add(this->get_instance(), target->second->length, table.template at(typeid(H)).topological_order,
+        table.try_add(this->get_instance(), target->second->length, order,
                       {target->second});
     }
 }

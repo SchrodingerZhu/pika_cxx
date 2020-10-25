@@ -74,5 +74,24 @@ TEST(Graph, LeftRecusion) {
     PARSE(Add, "1+1", 2, eval);
     PARSE(Add, "1+555+1+1", 558, eval);
 }
+PIKA_DECLARE(List, PIKA_ORD(PIKA_SEQ(List, PIKA_CHAR('a')), PIKA_CHAR('a')), true);
+
+TEST(Graph, List) {
+    PARSE(List, "a", "a", extract);
+    PARSE(List, "aaa", "aaa", extract);
+    PARSE(List, "aaab", "aaa", extract);
+    PARSE(List, "aaabaaa", "aaa", extract);
+    std::string as(1000, 'a');
+    PARSE(List, as, as, extract);
+}
+PIKA_DECLARE(List2, PIKA_PLUS(PIKA_CHAR('a')), true);
+TEST(Graph, List2) {
+    PARSE(List2, "a", "a", extract);
+    PARSE(List2, "aaa", "aaa", extract);
+    PARSE(List2, "aaab", "aaa", extract);
+    PARSE(List2, "aaabaaa", "aaa", extract);
+    std::string as(1000, 'a');
+    PARSE(List2, as, as, extract);
+}
 
 #endif //PIKA_TEST_GRAPH_HPP
