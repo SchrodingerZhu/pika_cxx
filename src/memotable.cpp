@@ -93,6 +93,7 @@ pika::nonoverlapping_matches(const pika::memotable::MemoTable::OrderedMatches &m
             } else break;
         }
     }
+    return result;
 }
 
 void pika::utils::interval_union::add_interval(size_t start, size_t end) {
