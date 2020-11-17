@@ -1,8 +1,8 @@
 #ifndef PIKA_MEMOTABLE_HPP
 #define PIKA_MEMOTABLE_HPP
 
-#include <absl/container/flat_hash_map.h>
 #include <absl/container/btree_map.h>
+#include <absl/container/flat_hash_map.h>
 #include <pika/clause.hpp>
 #include <pika/type_utils.hpp>
 #include <typeindex>
@@ -15,17 +15,22 @@ namespace pika
     {
         class TreeNode;
     }
-    namespace utils {
-        class interval_union {
+    namespace utils
+    {
+        class interval_union
+        {
             absl::btree_map<size_t, size_t> segments;
-        public:
+
+          public:
             void add_interval(size_t start, size_t end);
             [[nodiscard]] interval_union invert(size_t start, size_t end) const;
             [[nodiscard]] bool is_overlap(size_t start, size_t end) const;
         };
     }
-    namespace memotable {
-        struct MemoKey {
+    namespace memotable
+    {
+        struct MemoKey
+        {
             const std::type_index clause_type;
             const size_t start_position;
             const clause::Clause* const tag;
@@ -72,9 +77,12 @@ namespace pika
         : public absl::flat_hash_map<MemoKey, std::shared_ptr<Match>>
         {
             std::string_view target;
-        public:
-            using OrderedMatches = absl::btree_map<size_t, std::shared_ptr<Match>>;
-            using OrderedTable   = absl::flat_hash_map<std::type_index, OrderedMatches>;
+
+          public:
+            using OrderedMatches =
+                absl::btree_map<size_t, std::shared_ptr<Match>>;
+            using OrderedTable =
+                absl::flat_hash_map<std::type_index, OrderedMatches>;
             friend pika::graph::ClauseTable;
             friend pika::parse_tree::TreeNode;
 
@@ -84,7 +92,8 @@ namespace pika
 
             [[nodiscard]] bool at_end(size_t index) const;
 
-            [[nodiscard]] OrderedMatches ordered_matches(std::type_index clause) const;
+            [[nodiscard]] OrderedMatches
+            ordered_matches(std::type_index clause) const;
             // TODO: is this needed in our case?
             [[nodiscard]] OrderedTable ordered_matches() const;
         };
