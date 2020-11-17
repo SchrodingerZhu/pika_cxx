@@ -7,8 +7,8 @@
 #include <typeindex>
 
 template<char C>
-std::shared_ptr<pika::memotable::Match>
-Char<C>::packrat_match(memotable::MemoTable& table, size_t index) const
+std::shared_ptr<pika::memotable::Match> pika::clause::Char<C>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({
         if (!table.at_end(index) && table.get_char(index) == C)
@@ -23,7 +23,7 @@ Char<C>::packrat_match(memotable::MemoTable& table, size_t index) const
 }
 
 template<char C>
-void Char<C>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Char<C>::pika_match(pika::graph::ClauseTable& table) const
 {
     if (table.get_current() == C)
     {
@@ -32,7 +32,8 @@ void Char<C>::pika_match(pika::graph::ClauseTable& table) const
 }
 
 template<char Start, char End>
-std::shared_ptr<pika::memotable::Match> CharRange<Start, End>::packrat_match(
+std::shared_ptr<pika::memotable::Match>
+pika::clause::CharRange<Start, End>::packrat_match(
     memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({
@@ -49,7 +50,8 @@ std::shared_ptr<pika::memotable::Match> CharRange<Start, End>::packrat_match(
 }
 
 template<char Start, char End>
-void CharRange<Start, End>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::CharRange<Start, End>::pika_match(
+    pika::graph::ClauseTable& table) const
 {
     auto current = table.get_current();
     if (current >= Start && current <= End)
@@ -60,7 +62,8 @@ void CharRange<Start, End>::pika_match(pika::graph::ClauseTable& table) const
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-NotFollowedBy<S>::packrat_match(memotable::MemoTable& table, size_t index) const
+pika::clause::NotFollowedBy<S>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({
         if (!S().packrat_match(table, index))
@@ -76,7 +79,8 @@ NotFollowedBy<S>::packrat_match(memotable::MemoTable& table, size_t index) const
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-FollowedBy<S>::packrat_match(memotable::MemoTable& table, size_t index) const
+pika::clause::FollowedBy<S>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({
         if (auto res = S().packrat_match(table, index))
@@ -93,7 +97,8 @@ FollowedBy<S>::packrat_match(memotable::MemoTable& table, size_t index) const
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-Optional<S>::packrat_match(memotable::MemoTable& table, size_t index) const
+pika::clause::Optional<S>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({
         if (auto res = S().packrat_match(table, index))
@@ -118,7 +123,8 @@ Optional<S>::packrat_match(memotable::MemoTable& table, size_t index) const
 
 template<typename S>
 std::shared_ptr<pika::memotable::Match>
-Asterisks<S>::packrat_match(memotable::MemoTable& table, size_t index) const
+pika::clause::Asterisks<S>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({
         size_t matched_length = 0;
@@ -139,8 +145,8 @@ Asterisks<S>::packrat_match(memotable::MemoTable& table, size_t index) const
 }
 
 template<typename S>
-std::shared_ptr<pika::memotable::Match>
-Plus<S>::packrat_match(memotable::MemoTable& table, size_t index) const
+std::shared_ptr<pika::memotable::Match> pika::clause::Plus<S>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({
         size_t matched_length = 0;
@@ -162,7 +168,7 @@ Plus<S>::packrat_match(memotable::MemoTable& table, size_t index) const
 }
 
 template<typename S>
-void Plus<S>::dfs_traversal(
+void pika::clause::Plus<S>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -171,13 +177,13 @@ void Plus<S>::dfs_traversal(
 }
 
 template<typename S>
-void Plus<S>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::Plus<S>::mark_seeds(pika::graph::ClauseTable& table) const
 {
     table.at(typeid(S)).candidates.push_back(this->get_instance());
 }
 
 template<typename S>
-void Plus<S>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Plus<S>::pika_match(pika::graph::ClauseTable& table) const
 {
     std::vector<std::shared_ptr<memotable::Match>> sub_matches;
     size_t length = 0;
@@ -207,7 +213,7 @@ void Plus<S>::pika_match(pika::graph::ClauseTable& table) const
 }
 
 template<typename S>
-void Asterisks<S>::dfs_traversal(
+void pika::clause::Asterisks<S>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -216,13 +222,15 @@ void Asterisks<S>::dfs_traversal(
 }
 
 template<typename S>
-void Asterisks<S>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::Asterisks<S>::mark_seeds(
+    pika::graph::ClauseTable& table) const
 {
     table.at(typeid(S)).candidates.push_back(this->get_instance());
 }
 
 template<typename S>
-void Asterisks<S>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Asterisks<S>::pika_match(
+    pika::graph::ClauseTable& table) const
 {
     std::vector<std::shared_ptr<memotable::Match>> sub_matches;
     size_t length = 0;
@@ -249,7 +257,7 @@ void Asterisks<S>::pika_match(pika::graph::ClauseTable& table) const
 }
 
 template<typename S>
-void Optional<S>::dfs_traversal(
+void pika::clause::Optional<S>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -258,13 +266,15 @@ void Optional<S>::dfs_traversal(
 }
 
 template<typename S>
-void Optional<S>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::Optional<S>::mark_seeds(
+    pika::graph::ClauseTable& table) const
 {
     table.at(typeid(S)).candidates.push_back(this->get_instance());
 }
 
 template<typename S>
-void Optional<S>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Optional<S>::pika_match(
+    pika::graph::ClauseTable& table) const
 {
     std::vector<std::shared_ptr<memotable::Match>> sub_matches;
     size_t length = 0;
@@ -279,7 +289,7 @@ void Optional<S>::pika_match(pika::graph::ClauseTable& table) const
 }
 
 template<typename S>
-void FollowedBy<S>::dfs_traversal(
+void pika::clause::FollowedBy<S>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -288,13 +298,15 @@ void FollowedBy<S>::dfs_traversal(
 }
 
 template<typename S>
-void FollowedBy<S>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::FollowedBy<S>::mark_seeds(
+    pika::graph::ClauseTable& table) const
 {
     table.at(typeid(S)).candidates.push_back(this->get_instance());
 }
 
 template<typename S>
-void FollowedBy<S>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::FollowedBy<S>::pika_match(
+    pika::graph::ClauseTable& table) const
 {
     if (table.memo_table.template contains(
             {S().get_instance(), table.current_pos - 1}))
@@ -304,7 +316,7 @@ void FollowedBy<S>::pika_match(pika::graph::ClauseTable& table) const
 }
 
 template<typename S>
-void NotFollowedBy<S>::dfs_traversal(
+void pika::clause::NotFollowedBy<S>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -313,13 +325,15 @@ void NotFollowedBy<S>::dfs_traversal(
 }
 
 template<typename S>
-void NotFollowedBy<S>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::NotFollowedBy<S>::mark_seeds(
+    pika::graph::ClauseTable& table) const
 {
     table.at(typeid(S)).candidates.push_back(this->get_instance());
 }
 
 template<typename S>
-void NotFollowedBy<S>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::NotFollowedBy<S>::pika_match(
+    pika::graph::ClauseTable& table) const
 {
     if (!table.memo_table.template contains(
             {S().get_instance(), table.current_pos - 1}))
@@ -329,8 +343,8 @@ void NotFollowedBy<S>::pika_match(pika::graph::ClauseTable& table) const
 }
 
 template<typename S>
-std::shared_ptr<pika::memotable::Match>
-Ord<S>::packrat_match(memotable::MemoTable& table, size_t index) const
+std::shared_ptr<pika::memotable::Match> pika::clause::Ord<S>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH(if (auto res = S().packrat_match(table, index)) {
         return table[key] = std::make_shared<pika::memotable::Match>(
@@ -343,7 +357,8 @@ Ord<S>::packrat_match(memotable::MemoTable& table, size_t index) const
 
 template<typename H, typename... T>
 std::shared_ptr<pika::memotable::Match>
-Ord<H, T...>::packrat_match(memotable::MemoTable& table, size_t index) const
+pika::clause::Ord<H, T...>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH(
         if (auto res = H().packrat_match(table, index)) {
@@ -357,7 +372,8 @@ Ord<H, T...>::packrat_match(memotable::MemoTable& table, size_t index) const
 }
 
 template<typename H, typename... T>
-std::shared_ptr<pika::memotable::Match> Seq<H, T...>::packrat_reduce(
+std::shared_ptr<pika::memotable::Match>
+pika::clause::Seq<H, T...>::packrat_reduce(
     memotable::MemoTable& table,
     size_t index,
     size_t length,
@@ -376,7 +392,7 @@ std::shared_ptr<pika::memotable::Match> Seq<H, T...>::packrat_reduce(
 }
 
 template<typename H>
-std::shared_ptr<pika::memotable::Match> Seq<H>::packrat_reduce(
+std::shared_ptr<pika::memotable::Match> pika::clause::Seq<H>::packrat_reduce(
     memotable::MemoTable& table,
     size_t index,
     size_t length,
@@ -396,8 +412,8 @@ std::shared_ptr<pika::memotable::Match> Seq<H>::packrat_reduce(
 }
 
 template<typename S>
-std::shared_ptr<pika::memotable::Match>
-Seq<S>::packrat_match(memotable::MemoTable& table, size_t index) const
+std::shared_ptr<pika::memotable::Match> pika::clause::Seq<S>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({ return packrat_reduce(table, index, 0, {}); }
 
@@ -405,7 +421,7 @@ Seq<S>::packrat_match(memotable::MemoTable& table, size_t index) const
 }
 
 template<typename H, typename... T>
-void Seq<H, T...>::dfs_traversal(
+void pika::clause::Seq<H, T...>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -414,7 +430,7 @@ void Seq<H, T...>::dfs_traversal(
 }
 
 template<typename H, typename... T>
-void Seq<H, T...>::_dfs_traversal(
+void pika::clause::Seq<H, T...>::_dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -424,19 +440,20 @@ void Seq<H, T...>::_dfs_traversal(
 }
 
 template<typename H>
-void Seq<H>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::Seq<H>::mark_seeds(pika::graph::ClauseTable& table) const
 {
     table.at(typeid(H)).candidates.push_back(this->get_instance());
 }
 
 template<typename H, typename... T>
-void Seq<H, T...>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Seq<H, T...>::pika_match(
+    pika::graph::ClauseTable& table) const
 {
     pika_match_unchecked(table, 0, {});
 }
 
 template<typename H, typename... T>
-void Seq<H, T...>::pika_match_unchecked(
+void pika::clause::Seq<H, T...>::pika_match_unchecked(
     pika::graph::ClauseTable& table,
     size_t length,
     std::vector<std::shared_ptr<memotable::Match>> matches) const
@@ -452,13 +469,13 @@ void Seq<H, T...>::pika_match_unchecked(
 }
 
 template<typename H>
-void Seq<H>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Seq<H>::pika_match(pika::graph::ClauseTable& table) const
 {
     pika_match_unchecked(table, 0, {});
 }
 
 template<typename H>
-void Seq<H>::pika_match_unchecked(
+void pika::clause::Seq<H>::pika_match_unchecked(
     pika::graph::ClauseTable& table,
     size_t length,
     std::vector<std::shared_ptr<memotable::Match>> matches) const
@@ -477,13 +494,14 @@ void Seq<H>::pika_match_unchecked(
 }
 
 template<typename H, typename... T>
-void Seq<H, T...>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::Seq<H, T...>::mark_seeds(
+    pika::graph::ClauseTable& table) const
 {
     table.at(typeid(H)).candidates.push_back(this->get_instance());
 }
 
 template<typename H>
-void Seq<H>::dfs_traversal(
+void pika::clause::Seq<H>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -492,7 +510,7 @@ void Seq<H>::dfs_traversal(
 }
 
 template<typename H>
-void Seq<H>::_dfs_traversal(
+void pika::clause::Seq<H>::_dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -502,7 +520,7 @@ void Seq<H>::_dfs_traversal(
 }
 
 template<typename H, typename... T>
-void Ord<H, T...>::dfs_traversal(
+void pika::clause::Ord<H, T...>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -511,7 +529,7 @@ void Ord<H, T...>::dfs_traversal(
 }
 
 template<typename H, typename... T>
-void Ord<H, T...>::_dfs_traversal(
+void pika::clause::Ord<H, T...>::_dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -521,20 +539,22 @@ void Ord<H, T...>::_dfs_traversal(
 }
 
 template<typename H, typename... T>
-void Ord<H, T...>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::Ord<H, T...>::mark_seeds(
+    pika::graph::ClauseTable& table) const
 {
     table.at(typeid(H)).candidates.push_back(this->get_instance());
     Ord<T...>::mark_seeds(table);
 }
 
 template<typename H, typename... T>
-void Ord<H, T...>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Ord<H, T...>::pika_match(
+    pika::graph::ClauseTable& table) const
 {
     pika_match_unchecked(table, 0);
 }
 
 template<typename H, typename... T>
-void Ord<H, T...>::pika_match_unchecked(
+void pika::clause::Ord<H, T...>::pika_match_unchecked(
     pika::graph::ClauseTable& table, size_t order) const
 {
     auto target = table.memo_table.template find(
@@ -554,13 +574,13 @@ void Ord<H, T...>::pika_match_unchecked(
 }
 
 template<typename H>
-void Ord<H>::pika_match(pika::graph::ClauseTable& table) const
+void pika::clause::Ord<H>::pika_match(pika::graph::ClauseTable& table) const
 {
     pika_match_unchecked(table, 0);
 }
 
 template<typename H>
-void Ord<H>::pika_match_unchecked(
+void pika::clause::Ord<H>::pika_match_unchecked(
     pika::graph::ClauseTable& table, size_t order) const
 {
     auto target = table.memo_table.template find(
@@ -576,13 +596,13 @@ void Ord<H>::pika_match_unchecked(
 }
 
 template<typename H>
-void Ord<H>::mark_seeds(pika::graph::ClauseTable& table) const
+void pika::clause::Ord<H>::mark_seeds(pika::graph::ClauseTable& table) const
 {
     table.at(typeid(H)).candidates.push_back(this->get_instance());
 }
 
 template<typename H>
-void Ord<H>::dfs_traversal(
+void pika::clause::Ord<H>::dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -591,7 +611,7 @@ void Ord<H>::dfs_traversal(
 }
 
 template<typename H>
-void Ord<H>::_dfs_traversal(
+void pika::clause::Ord<H>::_dfs_traversal(
     absl::flat_hash_set<std::type_index>& visited,
     std::vector<const Clause*>& terminals,
     std::vector<const Clause*>& nodes) const
@@ -602,7 +622,8 @@ void Ord<H>::_dfs_traversal(
 
 template<typename H, typename... T>
 std::shared_ptr<pika::memotable::Match>
-Seq<H, T...>::packrat_match(memotable::MemoTable& table, size_t index) const
+pika::clause::Seq<H, T...>::packrat_match(
+    memotable::MemoTable& table, size_t index) const
 {
     PIKA_CHECKED_MATCH({ return packrat_reduce(table, index, 0, {}); });
 }

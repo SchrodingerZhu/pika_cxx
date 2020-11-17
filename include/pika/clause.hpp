@@ -72,7 +72,6 @@ namespace pika
     { \
         return; \
     } \
-    else \
     { \
         visited.insert(typeid(*this)); \
         BLOCK \
@@ -843,7 +842,6 @@ namespace pika
     { \
         return table[key]; \
     } \
-    else \
     { \
         BLOCK \
     } \
