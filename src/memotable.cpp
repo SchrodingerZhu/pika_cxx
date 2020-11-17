@@ -112,42 +112,48 @@ pika::nonoverlapping_matches(
     return result;
 }
 
-void pika::utils::interval_union::add_interval(size_t start, size_t end)
+void pika::utils::IntervalUnion::add_interval(size_t start, size_t end) // [start, end)
 {
-    if (end < start)
+    if (end <= start)
     {
-        throw std::runtime_error("invalid interval: start > end");
+        return;
     }
-    const auto lower_bound = this->segments.lower_bound(start);
+    auto less_equal = this->segments.upper_bound(start);
+    if (less_equal != segments.begin()) {
+        less_equal = std::prev(less_equal);
+    } else {
+        less_equal = this->segments.end();
+    }
     std::pair<size_t, size_t> entry;
-    if (lower_bound == this->segments.end() || lower_bound->second < start)
+    if (less_equal == this->segments.end() || less_equal->second < start)
+    // for less_equal->second == start, it is still needed to merge two intervals
     {
         entry.first = start;
         entry.second = end;
     }
     else
     {
-        entry.first = lower_bound->first;
-        entry.second = std::max(lower_bound->second, end);
+        entry.first = less_equal->first;
+        entry.second = std::max(less_equal->second, end);
         // remove original one seems okay to me.
-        this->segments.erase(lower_bound);
+        this->segments.erase(less_equal);
     }
 
-    auto upper_bound = this->segments.upper_bound(start);
+    auto greater_equal = this->segments.lower_bound(start);
     // not need to be strict
     // previous equal one must be removed if ever exists
-    if (upper_bound != this->segments.end() && upper_bound->first <= end)
+    if (greater_equal != this->segments.end() && greater_equal->first <= end)
     {
-        entry.second = std::max(entry.second, upper_bound->second);
-        this->segments.erase(upper_bound);
+        entry.second = std::max(entry.second, greater_equal->second);
+        this->segments.erase(greater_equal);
     }
     this->segments.insert(entry);
 }
 
-pika::utils::interval_union
-pika::utils::interval_union::invert(size_t start, size_t end) const
+pika::utils::IntervalUnion
+pika::utils::IntervalUnion::invert(size_t start, size_t end) const
 {
-    interval_union result;
+    IntervalUnion result;
     auto prev = start;
     if (!segments.empty())
     {
@@ -161,7 +167,7 @@ pika::utils::interval_union::invert(size_t start, size_t end) const
             }
             prev = entry.second;
         }
-        auto& ending = *segments.end();
+        auto& ending = *segments.rbegin();
         if (ending.second < end)
         {
             result.add_interval(ending.second, end);
@@ -174,29 +180,36 @@ pika::utils::interval_union::invert(size_t start, size_t end) const
     return result;
 }
 
-bool pika::utils::interval_union::is_overlap(size_t start, size_t end) const
+bool pika::utils::IntervalUnion::is_overlap(size_t start, size_t end) const
 {
-    auto lower_bound = segments.lower_bound(start);
-    if (lower_bound != segments.end())
+    auto less_equal = this->segments.upper_bound(start);
+    if (less_equal != segments.begin()) {
+        less_equal = std::prev(less_equal);
+    } else {
+        less_equal = this->segments.end();
+    }
+    if (less_equal != segments.end())
     {
-        if (std::max(end, lower_bound->second) -
-                std::min(start, lower_bound->first) <
-            (end - start) + (lower_bound->second - lower_bound->first))
+        if ((start < less_equal->second && start >= less_equal->first) ||
+            (end <= less_equal->second && end > less_equal->first))
         {
             return true;
         }
     }
 
-    auto upper_bound = segments.upper_bound(start);
-    if (upper_bound != segments.end())
+    auto greater_equal = segments.lower_bound(start);
+    if (greater_equal != segments.end())
     {
-        if (std::max(end, upper_bound->second) -
-                std::min(start, upper_bound->first) <
-            (end - start) + (upper_bound->second - upper_bound->first))
+        if ((start < greater_equal->second && start >= greater_equal->first) ||
+            (end <= greater_equal->second && end > greater_equal->first))
         {
             return true;
         }
     }
 
     return false;
+}
+
+size_t pika::utils::IntervalUnion::size() const {
+    return segments.size();
 }

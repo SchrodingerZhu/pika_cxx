@@ -17,14 +17,15 @@ namespace pika
     }
     namespace utils
     {
-        class interval_union
+        class IntervalUnion
         {
             absl::btree_map<size_t, size_t> segments;
 
           public:
             void add_interval(size_t start, size_t end);
-            [[nodiscard]] interval_union invert(size_t start, size_t end) const;
+            [[nodiscard]] IntervalUnion invert(size_t start, size_t end) const;
             [[nodiscard]] bool is_overlap(size_t start, size_t end) const;
+            [[nodiscard]] size_t size() const;
         };
     }
     namespace memotable
