@@ -8,7 +8,7 @@
 
 using namespace pika::clause;
 
-TEST(MemoKey, Hash)
+TEST(MemoTable, Hash)
 {
     EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
         {pika::memotable::MemoKey(Char<'A'>().get_instance(), 0),
@@ -18,7 +18,7 @@ TEST(MemoKey, Hash)
 }
 
 
-TEST(MemoKey, IntervalUnion)
+TEST(MemoTable, IntervalUnion)
 {
     using namespace pika::memotable;
     using namespace pika::utils;
@@ -40,10 +40,12 @@ TEST(MemoKey, IntervalUnion)
     EXPECT_FALSE(inverted.is_overlap(0, 5));
     EXPECT_FALSE(inverted.is_overlap(8, 10));
 
-    interval.add_interval(1, 9);
+    interval.add_interval(6, 7);
+    EXPECT_EQ(interval.size(), 2);
+    interval.add_interval(7, 8);
     EXPECT_EQ(interval.size(), 1);
     EXPECT_TRUE(interval.is_overlap(5, 8));
-    EXPECT_EQ(interval.invert(0, 10).size(), 0);
+    EXPECT_EQ(interval.invert(0, 9).size(), 0);
 }
 
 
